@@ -3,9 +3,9 @@
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <!--always bump /version.json and /docs/conf.py to <Version>X.Y.Z</Version>to keep nuget, build and document versions in sync-->
-        <Version>8.0.4</Version>
-		<IdentityServerVersion>8.0.4</IdentityServerVersion>
-        <PackageId>HigginsSoft.$(MSBuildProjectName)</PackageId>
+        <Version>8.0.5</Version>
+		<IdentityServerVersion>8.0.5</IdentityServerVersion>
+        <PackageId>TechAdvisor.$(MSBuildProjectName)</PackageId>
         <Title>$(MSBuildProjectName)</Title>
         <ImplicitUsings>enable</ImplicitUsings>
 
@@ -25,9 +25,9 @@
         <PackageTags>OAuth2 OAuth 2.0 OpenID Connect Security Identity IdentityServer Admin IdentityServer8 OpenIDConnect </PackageTags>
 
 
-        <PackageProjectUrl>https://github.com/alexhiggins732/IdentityServer8</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/techadvisorbe/IdentityServer8</PackageProjectUrl>
         <RepositoryType>git</RepositoryType>
-        <PackageReleaseNotes>https://github.com/alexhiggins732/IdentityServer8/releases</PackageReleaseNotes>
+        <PackageReleaseNotes>https://github.com/techadvisorbe/IdentityServer8/releases</PackageReleaseNotes>
 
         <!-- Declare that the Repository URL can be published to NuSpec -->
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
