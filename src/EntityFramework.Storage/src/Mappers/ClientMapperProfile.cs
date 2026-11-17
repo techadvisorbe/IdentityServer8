@@ -17,62 +17,48 @@ namespace IdentityServer8.EntityFramework.Mappers
     /// <summary>
     /// Defines entity/model mapping for clients.
     /// </summary>
-    /// <seealso cref="AutoMapper.Profile" />
-    public class ClientMapperProfile : Profile
+    /// <seealso cref="IRegister" />
+    public class ClientMapperProfile : IRegister
     {
         /// <summary>
-        /// <see>
-        ///     <cref>{ClientMapperProfile}</cref>
-        /// </see>
+        /// Registers the client mappings with the given configuration.
         /// </summary>
-        public ClientMapperProfile()
+        /// <param name="config">The mapping configuration.</param>
+        public void Register(TypeAdapterConfig config)
         {
-            CreateMap<Entities.ClientProperty, KeyValuePair<string, string>>()
-                .ReverseMap();
+            config.NewConfig<Entities.Client, Models.Client>()
+                .Map(dest => dest.ClientSecrets, src => src.ClientSecrets ?? new List<Entities.ClientSecret>())
+                .Map(dest => dest.AllowedGrantTypes, src => MappingHelpers.MapList(src.AllowedGrantTypes, x => x.GrantType))
+                .Map(dest => dest.RedirectUris, src => MappingHelpers.MapList(src.RedirectUris, x => x.RedirectUri))
+                .Map(dest => dest.PostLogoutRedirectUris, src => MappingHelpers.MapList(src.PostLogoutRedirectUris, x => x.PostLogoutRedirectUri))
+                .Map(dest => dest.AllowedScopes, src => MappingHelpers.MapList(src.AllowedScopes, x => x.Scope))
+                .Map(dest => dest.AllowedIdentityTokenSigningAlgorithms, src => AllowedSigningAlgorithmsConverter.ToModel(src.AllowedIdentityTokenSigningAlgorithms))
+                .Map(dest => dest.IdentityProviderRestrictions, src => MappingHelpers.MapList(src.IdentityProviderRestrictions, x => x.Provider))
+                .Map(dest => dest.Claims, src => src.Claims ?? new List<Entities.ClientClaim>())
+                .Map(dest => dest.AllowedCorsOrigins, src => MappingHelpers.MapList(src.AllowedCorsOrigins, x => x.Origin))
+                .Map(dest => dest.Properties, src => MappingHelpers.ToDictionary(src.Properties));
 
-            CreateMap<Entities.Client, Models.Client>()
-                .ForMember(dest => dest.ProtocolType, opt => opt.Condition(srs => srs != null))
-                .ForMember(x => x.AllowedIdentityTokenSigningAlgorithms, opts => opts.ConvertUsing(AllowedSigningAlgorithmsConverter.Converter, x => x.AllowedIdentityTokenSigningAlgorithms))
-                .ReverseMap()
-                .ForMember(x => x.AllowedIdentityTokenSigningAlgorithms, opts => opts.ConvertUsing(AllowedSigningAlgorithmsConverter.Converter, x => x.AllowedIdentityTokenSigningAlgorithms));
+            config.NewConfig<Models.Client, Entities.Client>()
+                .ShallowCopyForSameType(true)
+                .Map(dest => dest.ClientSecrets, src => src.ClientSecrets ?? new List<Secret>())
+                .Map(dest => dest.AllowedGrantTypes, src => MappingHelpers.MapList(src.AllowedGrantTypes, x => new Entities.ClientGrantType { GrantType = x }))
+                .Map(dest => dest.RedirectUris, src => MappingHelpers.MapList(src.RedirectUris, x => new Entities.ClientRedirectUri { RedirectUri = x }))
+                .Map(dest => dest.PostLogoutRedirectUris, src => MappingHelpers.MapList(src.PostLogoutRedirectUris, x => new Entities.ClientPostLogoutRedirectUri { PostLogoutRedirectUri = x }))
+                .Map(dest => dest.AllowedScopes, src => MappingHelpers.MapList(src.AllowedScopes, x => new Entities.ClientScope { Scope = x }))
+                .Map(dest => dest.AllowedIdentityTokenSigningAlgorithms, src => AllowedSigningAlgorithmsConverter.ToEntity(src.AllowedIdentityTokenSigningAlgorithms))
+                .Map(dest => dest.IdentityProviderRestrictions, src => MappingHelpers.MapList(src.IdentityProviderRestrictions, x => new Entities.ClientIdPRestriction { Provider = x }))
+                .Map(dest => dest.Claims, src => src.Claims ?? new List<ClientClaim>())
+                .Map(dest => dest.AllowedCorsOrigins, src => MappingHelpers.MapList(src.AllowedCorsOrigins, x => new Entities.ClientCorsOrigin { Origin = x }))
+                .Map(dest => dest.Properties, src => MappingHelpers.ToProperties<Entities.ClientProperty>(src.Properties));
 
-            CreateMap<Entities.ClientCorsOrigin, string>()
-                .ConstructUsing(src => src.Origin)
-                .ReverseMap()
-                .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => src));
+            config.NewConfig<Entities.ClientClaim, ClientClaim>()
+                .MapWith(src => new ClientClaim(src.Type, src.Value, ClaimValueTypes.String));
 
-            CreateMap<Entities.ClientIdPRestriction, string>()
-                .ConstructUsing(src => src.Provider)
-                .ReverseMap()
-                .ForMember(dest => dest.Provider, opt => opt.MapFrom(src => src));
+            config.NewConfig<ClientClaim, Entities.ClientClaim>();
 
-            CreateMap<Entities.ClientClaim, ClientClaim>(MemberList.None)
-                .ConstructUsing(src => new ClientClaim(src.Type, src.Value, ClaimValueTypes.String))
-                .ReverseMap();
+            config.NewConfig<Entities.ClientSecret, Secret>();
 
-            CreateMap<Entities.ClientScope, string>()
-                .ConstructUsing(src => src.Scope)
-                .ReverseMap()
-                .ForMember(dest => dest.Scope, opt => opt.MapFrom(src => src));
-
-            CreateMap<Entities.ClientPostLogoutRedirectUri, string>()
-                .ConstructUsing(src => src.PostLogoutRedirectUri)
-                .ReverseMap()
-                .ForMember(dest => dest.PostLogoutRedirectUri, opt => opt.MapFrom(src => src));
-
-            CreateMap<Entities.ClientRedirectUri, string>()
-                .ConstructUsing(src => src.RedirectUri)
-                .ReverseMap()
-                .ForMember(dest => dest.RedirectUri, opt => opt.MapFrom(src => src));
-
-            CreateMap<Entities.ClientGrantType, string>()
-                .ConstructUsing(src => src.GrantType)
-                .ReverseMap()
-                .ForMember(dest => dest.GrantType, opt => opt.MapFrom(src => src));
-
-            CreateMap<Entities.ClientSecret, Models.Secret>(MemberList.Destination)
-                .ForMember(dest => dest.Type, opt => opt.Condition(srs => srs != null))
-                .ReverseMap();
+            config.NewConfig<Secret, Entities.ClientSecret>();
         }
     }
 }

@@ -19,11 +19,12 @@ namespace IdentityServer8.EntityFramework.Mappers
     {
         static ClientMappers()
         {
-            Mapper = new MapperConfiguration(cfg => cfg.AddProfile<ClientMapperProfile>())
-                .CreateMapper();
+            Config = new TypeAdapterConfig();
+            Config.Apply(new ClientMapperProfile());
+            Config.Compile();
         }
 
-        internal static IMapper Mapper { get; }
+        internal static TypeAdapterConfig Config { get; }
 
         /// <summary>
         /// Maps an entity to a model.
@@ -32,7 +33,7 @@ namespace IdentityServer8.EntityFramework.Mappers
         /// <returns></returns>
         public static Models.Client ToModel(this Entities.Client entity)
         {
-            return Mapper.Map<Models.Client>(entity);
+            return entity == null ? null : entity.Adapt<Entities.Client, Models.Client>(Config);
         }
 
         /// <summary>
@@ -42,7 +43,7 @@ namespace IdentityServer8.EntityFramework.Mappers
         /// <returns></returns>
         public static Entities.Client ToEntity(this Models.Client model)
         {
-            return Mapper.Map<Entities.Client>(model);
+            return model == null ? null : model.Adapt<Models.Client, Entities.Client>(Config);
         }
     }
 }

@@ -22,9 +22,11 @@ namespace IdentityServer8.EntityFramework.UnitTests.Mappers;
 public class ClientMappersTests
 {
     [Fact]
-    public void AutomapperConfigurationIsValid()
+    public void MapsterConfigurationIsValid()
     {
-        ClientMappers.Mapper.ConfigurationProvider.AssertConfigurationIsValid();
+        MapsterAssert.ConfigurationIsValid(new ClientMapperProfile(),
+            (typeof(IdentityServer8.EntityFramework.Entities.Client), typeof(IdentityServer8.Models.Client)),
+            (typeof(IdentityServer8.EntityFramework.Entities.ClientSecret), typeof(IdentityServer8.Models.Secret)));
     }
 
     [Fact]

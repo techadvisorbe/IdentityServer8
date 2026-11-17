@@ -21,9 +21,11 @@ namespace IdentityServer8.EntityFramework.UnitTests.Mappers;
 public class ApiResourceMappersTests
 {
     [Fact]
-    public void AutomapperConfigurationIsValid()
+    public void MapsterConfigurationIsValid()
     {
-        ApiResourceMappers.Mapper.ConfigurationProvider.AssertConfigurationIsValid();
+        MapsterAssert.ConfigurationIsValid(new ApiResourceMapperProfile(),
+            (typeof(IdentityServer8.EntityFramework.Entities.ApiResource), typeof(IdentityServer8.Models.ApiResource)),
+            (typeof(IdentityServer8.EntityFramework.Entities.ApiResourceSecret), typeof(IdentityServer8.Models.Secret)));
     }
 
     [Fact]

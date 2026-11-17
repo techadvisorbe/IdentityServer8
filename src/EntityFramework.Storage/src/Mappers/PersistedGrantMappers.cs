@@ -21,11 +21,12 @@ namespace IdentityServer8.EntityFramework.Mappers
     {
         static PersistedGrantMappers()
         {
-            Mapper = new MapperConfiguration(cfg =>cfg.AddProfile<PersistedGrantMapperProfile>())
-                .CreateMapper();
+            Config = new TypeAdapterConfig();
+            Config.Apply(new PersistedGrantMapperProfile());
+            Config.Compile();
         }
 
-        internal static IMapper Mapper { get; }
+        internal static TypeAdapterConfig Config { get; }
 
         /// <summary>
         /// Maps an entity to a model.
@@ -34,7 +35,7 @@ namespace IdentityServer8.EntityFramework.Mappers
         /// <returns></returns>
         public static PersistedGrant ToModel(this Entities.PersistedGrant entity)
         {
-            return entity == null ? null : Mapper.Map<PersistedGrant>(entity);
+            return entity == null ? null : entity.Adapt<Entities.PersistedGrant, PersistedGrant>(Config);
         }
 
         /// <summary>
@@ -44,7 +45,7 @@ namespace IdentityServer8.EntityFramework.Mappers
         /// <returns></returns>
         public static Entities.PersistedGrant ToEntity(this PersistedGrant model)
         {
-            return model == null ? null : Mapper.Map<Entities.PersistedGrant>(model);
+            return model == null ? null : model.Adapt<PersistedGrant, Entities.PersistedGrant>(Config);
         }
 
         /// <summary>
@@ -54,7 +55,7 @@ namespace IdentityServer8.EntityFramework.Mappers
         /// <param name="entity">The entity.</param>
         public static void UpdateEntity(this PersistedGrant model, Entities.PersistedGrant entity)
         {
-            Mapper.Map(model, entity);
+            model.Adapt(entity, Config);
         }
     }
 }

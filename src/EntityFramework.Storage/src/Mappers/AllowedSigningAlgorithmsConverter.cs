@@ -12,13 +12,12 @@
 
 namespace IdentityServer8.EntityFramework.Mappers
 {
-    class AllowedSigningAlgorithmsConverter : 
-        IValueConverter<ICollection<string>, string>,
-        IValueConverter<string, ICollection<string>>
+    /// <summary>
+    /// Converts signing algorithms between the comma separated entity representation and the model collection.
+    /// </summary>
+    static class AllowedSigningAlgorithmsConverter
     {
-        public static AllowedSigningAlgorithmsConverter Converter = new AllowedSigningAlgorithmsConverter();
-
-        public string Convert(ICollection<string> sourceMember, ResolutionContext context)
+        public static string ToEntity(ICollection<string> sourceMember)
         {
             if (sourceMember == null || !sourceMember.Any())
             {
@@ -27,7 +26,7 @@ namespace IdentityServer8.EntityFramework.Mappers
             return sourceMember.Aggregate((x, y) => $"{x},{y}");
         }
 
-        public ICollection<string> Convert(string sourceMember, ResolutionContext context)
+        public static ICollection<string> ToModel(string sourceMember)
         {
             var list = new HashSet<string>();
             if (!String.IsNullOrWhiteSpace(sourceMember))
@@ -38,7 +37,7 @@ namespace IdentityServer8.EntityFramework.Mappers
                     list.Add(item);
                 }
             }
-            return list;
+            return list.ToList();
         }
     }
 }

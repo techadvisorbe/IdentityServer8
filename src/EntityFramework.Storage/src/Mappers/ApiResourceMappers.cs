@@ -21,11 +21,12 @@ namespace IdentityServer8.EntityFramework.Mappers
     {
         static ApiResourceMappers()
         {
-            Mapper = new MapperConfiguration(cfg => cfg.AddProfile<ApiResourceMapperProfile>())
-                .CreateMapper();
+            Config = new TypeAdapterConfig();
+            Config.Apply(new ApiResourceMapperProfile());
+            Config.Compile();
         }
 
-        internal static IMapper Mapper { get; }
+        internal static TypeAdapterConfig Config { get; }
 
         /// <summary>
         /// Maps an entity to a model.
@@ -34,7 +35,7 @@ namespace IdentityServer8.EntityFramework.Mappers
         /// <returns></returns>
         public static Models.ApiResource ToModel(this ApiResource entity)
         {
-            return entity == null ? null : Mapper.Map<Models.ApiResource>(entity);
+            return entity == null ? null : entity.Adapt<ApiResource, Models.ApiResource>(Config);
         }
 
         /// <summary>
@@ -44,7 +45,7 @@ namespace IdentityServer8.EntityFramework.Mappers
         /// <returns></returns>
         public static ApiResource ToEntity(this Models.ApiResource model)
         {
-            return model == null ? null : Mapper.Map<ApiResource>(model);
+            return model == null ? null : model.Adapt<Models.ApiResource, ApiResource>(Config);
         }
     }
 }

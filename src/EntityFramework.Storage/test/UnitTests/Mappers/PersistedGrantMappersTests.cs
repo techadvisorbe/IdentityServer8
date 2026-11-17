@@ -20,9 +20,10 @@ namespace IdentityServer8.EntityFramework.UnitTests.Mappers;
 public class PersistedGrantMappersTests
 {
     [Fact]
-    public void PersistedGrantAutomapperConfigurationIsValid()
+    public void PersistedGrantMapsterConfigurationIsValid()
     {
-        PersistedGrantMappers.Mapper.ConfigurationProvider.AssertConfigurationIsValid();
+        MapsterAssert.ConfigurationIsValid(new PersistedGrantMapperProfile(),
+            (typeof(IdentityServer8.EntityFramework.Entities.PersistedGrant), typeof(IdentityServer8.Models.PersistedGrant)));
     }
 
     [Fact]

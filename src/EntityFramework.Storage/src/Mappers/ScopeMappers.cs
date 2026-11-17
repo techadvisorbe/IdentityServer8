@@ -21,11 +21,12 @@ namespace IdentityServer8.EntityFramework.Mappers
     {
         static ScopeMappers()
         {
-            Mapper = new MapperConfiguration(cfg => cfg.AddProfile<ScopeMapperProfile>())
-                .CreateMapper();
+            Config = new TypeAdapterConfig();
+            Config.Apply(new ScopeMapperProfile());
+            Config.Compile();
         }
 
-        internal static IMapper Mapper { get; }
+        internal static TypeAdapterConfig Config { get; }
 
         /// <summary>
         /// Maps an entity to a model.
@@ -34,7 +35,7 @@ namespace IdentityServer8.EntityFramework.Mappers
         /// <returns></returns>
         public static Models.ApiScope ToModel(this ApiScope entity)
         {
-            return entity == null ? null : Mapper.Map<Models.ApiScope>(entity);
+            return entity == null ? null : entity.Adapt<ApiScope, Models.ApiScope>(Config);
         }
 
         /// <summary>
@@ -44,7 +45,7 @@ namespace IdentityServer8.EntityFramework.Mappers
         /// <returns></returns>
         public static ApiScope ToEntity(this Models.ApiScope model)
         {
-            return model == null ? null : Mapper.Map<ApiScope>(model);
+            return model == null ? null : model.Adapt<Models.ApiScope, ApiScope>(Config);
         }
     }
 }

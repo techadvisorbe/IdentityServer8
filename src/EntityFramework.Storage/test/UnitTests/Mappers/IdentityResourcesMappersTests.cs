@@ -19,9 +19,10 @@ namespace IdentityServer8.EntityFramework.UnitTests.Mappers;
 public class IdentityResourcesMappersTests
 {
     [Fact]
-    public void IdentityResourceAutomapperConfigurationIsValid()
+    public void IdentityResourceMapsterConfigurationIsValid()
     {
-        IdentityResourceMappers.Mapper.ConfigurationProvider.AssertConfigurationIsValid();
+        MapsterAssert.ConfigurationIsValid(new IdentityResourceMapperProfile(),
+            (typeof(IdentityServer8.EntityFramework.Entities.IdentityResource), typeof(IdentityServer8.Models.IdentityResource)));
     }
 
     [Fact]

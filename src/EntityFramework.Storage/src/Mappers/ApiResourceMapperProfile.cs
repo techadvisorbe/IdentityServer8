@@ -15,37 +15,33 @@ namespace IdentityServer8.EntityFramework.Mappers
     /// <summary>
     /// Defines entity/model mapping for API resources.
     /// </summary>
-    /// <seealso cref="AutoMapper.Profile" />
-    public class ApiResourceMapperProfile : Profile
+    /// <seealso cref="IRegister" />
+    public class ApiResourceMapperProfile : IRegister
     {
         /// <summary>
-        /// <see cref="ApiResourceMapperProfile"/>
+        /// Registers the API resource mappings with the given configuration.
         /// </summary>
-        public ApiResourceMapperProfile()
+        /// <param name="config">The mapping configuration.</param>
+        public void Register(TypeAdapterConfig config)
         {
-            CreateMap<Entities.ApiResourceProperty, KeyValuePair<string, string>>()
-                .ReverseMap();
+            config.NewConfig<Entities.ApiResource, Models.ApiResource>()
+                .Map(dest => dest.ApiSecrets, src => src.Secrets ?? new List<Entities.ApiResourceSecret>())
+                .Map(dest => dest.Scopes, src => MappingHelpers.MapList(src.Scopes, x => x.Scope))
+                .Map(dest => dest.UserClaims, src => MappingHelpers.MapList(src.UserClaims, x => x.Type))
+                .Map(dest => dest.Properties, src => MappingHelpers.ToDictionary(src.Properties))
+                .Map(dest => dest.AllowedAccessTokenSigningAlgorithms, src => AllowedSigningAlgorithmsConverter.ToModel(src.AllowedAccessTokenSigningAlgorithms));
 
-            CreateMap<Entities.ApiResource, Models.ApiResource>(MemberList.Destination)
-                .ConstructUsing(src => new Models.ApiResource())
-                .ForMember(x => x.ApiSecrets, opts => opts.MapFrom(x => x.Secrets))
-                .ForMember(x=>x.AllowedAccessTokenSigningAlgorithms, opts => opts.ConvertUsing(AllowedSigningAlgorithmsConverter.Converter, x=>x.AllowedAccessTokenSigningAlgorithms))
-                .ReverseMap()
-                .ForMember(x => x.AllowedAccessTokenSigningAlgorithms, opts => opts.ConvertUsing(AllowedSigningAlgorithmsConverter.Converter, x => x.AllowedAccessTokenSigningAlgorithms));
+            config.NewConfig<Models.ApiResource, Entities.ApiResource>()
+                .ShallowCopyForSameType(true)
+                .Map(dest => dest.Secrets, src => src.ApiSecrets ?? new List<Models.Secret>())
+                .Map(dest => dest.Scopes, src => MappingHelpers.MapList(src.Scopes, x => new Entities.ApiResourceScope { Scope = x }))
+                .Map(dest => dest.UserClaims, src => MappingHelpers.MapList(src.UserClaims, x => new Entities.ApiResourceClaim { Type = x }))
+                .Map(dest => dest.Properties, src => MappingHelpers.ToProperties<Entities.ApiResourceProperty>(src.Properties))
+                .Map(dest => dest.AllowedAccessTokenSigningAlgorithms, src => AllowedSigningAlgorithmsConverter.ToEntity(src.AllowedAccessTokenSigningAlgorithms));
 
-            CreateMap<Entities.ApiResourceClaim, string>()
-                .ConstructUsing(x => x.Type)
-                .ReverseMap()
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src));
+            config.NewConfig<Entities.ApiResourceSecret, Models.Secret>();
 
-            CreateMap<Entities.ApiResourceSecret, Models.Secret>(MemberList.Destination)
-                .ForMember(dest => dest.Type, opt => opt.Condition(srs => srs != null))
-                .ReverseMap();
-
-            CreateMap<Entities.ApiResourceScope, string>()
-                .ConstructUsing(x => x.Scope)
-                .ReverseMap()
-                .ForMember(dest => dest.Scope, opt => opt.MapFrom(src => src));
+            config.NewConfig<Models.Secret, Entities.ApiResourceSecret>();
         }
     }
 }

@@ -15,17 +15,18 @@ namespace IdentityServer8.EntityFramework.Mappers
     /// <summary>
     /// Defines entity/model mapping for persisted grants.
     /// </summary>
-    /// <seealso cref="AutoMapper.Profile" />
-    public class PersistedGrantMapperProfile:Profile
+    /// <seealso cref="IRegister" />
+    public class PersistedGrantMapperProfile : IRegister
     {
         /// <summary>
-        /// <see cref="PersistedGrantMapperProfile">
-        /// </see>
+        /// Registers the persisted grant mappings with the given configuration.
         /// </summary>
-        public PersistedGrantMapperProfile()
+        /// <param name="config">The mapping configuration.</param>
+        public void Register(TypeAdapterConfig config)
         {
-            CreateMap<Entities.PersistedGrant, Models.PersistedGrant>(MemberList.Destination)
-                .ReverseMap();
+            config.NewConfig<Entities.PersistedGrant, Models.PersistedGrant>();
+
+            config.NewConfig<Models.PersistedGrant, Entities.PersistedGrant>();
         }
     }
 }

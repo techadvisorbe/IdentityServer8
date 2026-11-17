@@ -15,27 +15,23 @@ namespace IdentityServer8.EntityFramework.Mappers
     /// <summary>
     /// Defines entity/model mapping for scopes.
     /// </summary>
-    /// <seealso cref="AutoMapper.Profile" />
-    public class ScopeMapperProfile : Profile
+    /// <seealso cref="IRegister" />
+    public class ScopeMapperProfile : IRegister
     {
         /// <summary>
-        /// <see cref="ScopeMapperProfile"/>
+        /// Registers the scope mappings with the given configuration.
         /// </summary>
-        public ScopeMapperProfile()
+        /// <param name="config">The mapping configuration.</param>
+        public void Register(TypeAdapterConfig config)
         {
-            CreateMap<Entities.ApiScopeProperty, KeyValuePair<string, string>>()
-                .ReverseMap();
+            config.NewConfig<Entities.ApiScope, Models.ApiScope>()
+                .Map(dest => dest.UserClaims, src => MappingHelpers.MapList(src.UserClaims, x => x.Type))
+                .Map(dest => dest.Properties, src => MappingHelpers.ToDictionary(src.Properties));
 
-            CreateMap<Entities.ApiScopeClaim, string>()
-               .ConstructUsing(x => x.Type)
-               .ReverseMap()
-               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src));
-
-            CreateMap<Entities.ApiScope, Models.ApiScope>(MemberList.Destination)
-                .ConstructUsing(src => new Models.ApiScope())
-                .ForMember(x => x.Properties, opts => opts.MapFrom(x => x.Properties))
-                .ForMember(x => x.UserClaims, opts => opts.MapFrom(x => x.UserClaims))
-                .ReverseMap();
+            config.NewConfig<Models.ApiScope, Entities.ApiScope>()
+                .ShallowCopyForSameType(true)
+                .Map(dest => dest.UserClaims, src => MappingHelpers.MapList(src.UserClaims, x => new Entities.ApiScopeClaim { Type = x }))
+                .Map(dest => dest.Properties, src => MappingHelpers.ToProperties<Entities.ApiScopeProperty>(src.Properties));
         }
     }
 }

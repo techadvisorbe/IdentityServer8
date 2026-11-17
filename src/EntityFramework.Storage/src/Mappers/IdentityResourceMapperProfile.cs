@@ -15,25 +15,23 @@ namespace IdentityServer8.EntityFramework.Mappers
     /// <summary>
     /// Defines entity/model mapping for identity resources.
     /// </summary>
-    /// <seealso cref="AutoMapper.Profile" />
-    public class IdentityResourceMapperProfile : Profile
+    /// <seealso cref="IRegister" />
+    public class IdentityResourceMapperProfile : IRegister
     {
         /// <summary>
-        /// <see cref="IdentityResourceMapperProfile"/>
+        /// Registers the identity resource mappings with the given configuration.
         /// </summary>
-        public IdentityResourceMapperProfile()
+        /// <param name="config">The mapping configuration.</param>
+        public void Register(TypeAdapterConfig config)
         {
-            CreateMap<Entities.IdentityResourceProperty, KeyValuePair<string, string>>()
-                .ReverseMap();
+            config.NewConfig<Entities.IdentityResource, Models.IdentityResource>()
+                .Map(dest => dest.UserClaims, src => MappingHelpers.MapList(src.UserClaims, x => x.Type))
+                .Map(dest => dest.Properties, src => MappingHelpers.ToDictionary(src.Properties));
 
-            CreateMap<Entities.IdentityResource, Models.IdentityResource>(MemberList.Destination)
-                .ConstructUsing(src => new Models.IdentityResource())
-                .ReverseMap();
-
-            CreateMap<Entities.IdentityResourceClaim, string>()
-               .ConstructUsing(x => x.Type)
-               .ReverseMap()
-               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src));
+            config.NewConfig<Models.IdentityResource, Entities.IdentityResource>()
+                .ShallowCopyForSameType(true)
+                .Map(dest => dest.UserClaims, src => MappingHelpers.MapList(src.UserClaims, x => new Entities.IdentityResourceClaim { Type = x }))
+                .Map(dest => dest.Properties, src => MappingHelpers.ToProperties<Entities.IdentityResourceProperty>(src.Properties));
         }
     }
 }
