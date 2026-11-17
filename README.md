@@ -1,29 +1,37 @@
-# Identity Server 8 update
-This project is a DotNet 8 revival of the Identity Server 4 and Identity Server 4 Admin UI, for Open ID Connect (OIDC) and OAuth, which was archived when .NET Core 3.1 reached end of support.
+# Identity Server 8
+This project is a .NET 10 revival of Identity Server 4, the OpenID Connect (OIDC) and OAuth 2.0 framework for ASP.NET Core, which was archived when .NET Core 3.1 reached end of support.
 
-The latest verion, 8.0.4, is now available on NuGet. It contains [hundreds of security and bug fixes](https://github.com/alexhiggins732/IdentityServer8/blob/master/docs/CHANGELOG.md) from the original Identity Server 4 project.
+It is a fork of [alexhiggins732/IdentityServer8](https://github.com/alexhiggins732/IdentityServer8), the .NET 8 revival, which contains [hundreds of security and bug fixes](https://github.com/alexhiggins732/IdentityServer8/blob/master/docs/CHANGELOG.md) from the original Identity Server 4 project.
 
-It is recommend you update all previous version, 4 or 8, to the latest version to ensure you have the latest security updates. 
+The current version is **10.0.0**, which targets **.NET 10 (LTS)**. It is published on NuGet as the [TechAdvisor.IdentityServer8](https://www.nuget.org/packages?q=TechAdvisor.IdentityServer8) packages.
+
+It is recommended that you update all previous versions, 4 or 8, to the latest version to ensure you have the latest security updates.
 
 - [Documentation](http://identityserver8.readthedocs.io/)
 - [Support](https://identityserver8.readthedocs.io/en/latest/into/support.html)
 - [Gitter Chat](https://app.gitter.im/#/room/#identityserver8:gitter.im)
 
-[HigginsSoft.IdentityServer8 and Admin UI Nuget Packages](https://www.nuget.org/packages?q=HigginsSoft.IdentityServer8) are available here for use in DotNet 8.
+All new development in the archived Identity Server 4 repository has moved to a paid commercial version in the [Duende Software](https://github.com/duendesoftware) organization. See [here](https://duendesoftware.com/products/identityserver) for more details on the commercial version.
 
-All new development in the archived repository has moved to a paid commercial version in the [Duende Software](https://github.com/duendesoftware) organization. 
+This repository will be maintained for bug fixes and security updates of Identity Server 4 on current .NET LTS releases.
 
-See [here](https://duendesoftware.com/products/identityserver) for more details on the commerica version.
+Generally speaking, the existing documentation for Identity Server 4 is valid for this repository. New features and changes will be documented in the new documentation.
 
-This repository will be maintained for bug fixes and security updates for the .NET 8 version of Identity Server 4.
+## What's new in 10.0.0
 
-The source code and unit tests will be updated to use the latest .NET 8 features and best practices.
+- **.NET 10.** All libraries target `net10.0`. ASP.NET Core, Entity Framework Core and `Microsoft.Extensions.*` dependencies are on 10.0.x, and `Microsoft.IdentityModel.*` / `System.IdentityModel.Tokens.Jwt` are on 8.x.
+- **AutoMapper replaced by [Mapster](https://github.com/MapsterMapper/Mapster).** The Entity Framework storage mappers now use Mapster. This removes AutoMapper 13.x and its known vulnerabilities. Mapping behaviour is unchanged.
+- **No database schema changes.** The Entity Framework Core model is identical to 8.x, so existing databases work without new migrations.
+- **No known vulnerable dependencies** at release, including transitive packages.
 
-Once the source code and unit tests are stabilized, the documentation will be updated to reflect the changes.
+### Upgrading from 8.x
 
-General speaking, the existing documentation for Identity Server 4 will be valid for this repository, but the new features and changes will be documented in the new documentation.
-
-In the meantime, NuGet packages will be published to the [IdentityServer8 NuGet feed](https://www.nuget.org/profiles/IdentityServer8) and the [IdentityServer8 MyGet feed](https://www.myget.org/F/identityserver8/api/v3/index.json).
+1. Install the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) and change your project's target framework to `net10.0`.
+2. Replace your `HigginsSoft.IdentityServer8.*` or `TechAdvisor.IdentityServer8.*` 8.x package references with `TechAdvisor.IdentityServer8.*` version `10.0.0`.
+3. If your application pins `Microsoft.IdentityModel.*` or `System.IdentityModel.Tokens.Jwt` to 7.x, update them to 8.x.
+4. The `ToModel()` / `ToEntity()` mapping extension methods are unchanged. If you registered the mapper profiles yourself (for example `cfg.AddProfile<ClientMapperProfile>()` with AutoMapper), note they now implement Mapster's `IRegister`. Register them with `config.Apply(new ClientMapperProfile())` on a `TypeAdapterConfig` instead.
+5. Mapping invalid data now throws the underlying exception instead of `AutoMapperMappingException`. Duplicate property keys throw `ArgumentException`, and an invalid grant type combination throws `InvalidOperationException`.
+6. If you maintain your own EF Core migrations, run `dotnet ef migrations has-pending-model-changes` against them. EF Core 9 and later throw an error when `Database.Migrate()` is called while the model has changes that no migration covers.
 
 
 ## Build Status And Stats
@@ -46,17 +54,20 @@ In the meantime, NuGet packages will be published to the [IdentityServer8 NuGet 
 
 ## Nuget Packages
 
-### Identity Server 8
+### Identity Server 8 (.NET 10)
 |Package||
 | ------------- | ------------- |
-|[HigginsSoft.IdentityServer8](https://www.nuget.org/packages?q=HigginsSoft.IdentityServer8)|![NuGet Downloads](https://img.shields.io/nuget/dt/HigginsSoft.IdentityServer8)|
-|[HigginsSoft.IdentityServer8.Storage](https://www.nuget.org/packages?q=HigginsSoft.IdentityServer8.Storage)|![NuGet Downloads](https://img.shields.io/nuget/dt/HigginsSoft.IdentityServer8.Storage)|
-|[HigginsSoft.IdentityServer8.EntityFramework](https://www.nuget.org/packages?q=HigginsSoft.IdentityServer8.EntityFramework)|![NuGet Downloads](https://img.shields.io/nuget/dt/HigginsSoft.IdentityServer8.EntityFramework)|
-|[HigginsSoft.IdentityServer8.EntityFramework.Storage](https://www.nuget.org/packages?q=HigginsSoft.IdentityServer8.EntityFramework.Storage)|![NuGet Downloads](https://img.shields.io/nuget/dt/HigginsSoft.IdentityServer8.EntityFramework.Storage)|
-|[HigginsSoft.IdentityServer8.AspNetIdentity](https://www.nuget.org/packages?q=HigginsSoft.IdentityServer8.AspNetIdentity)|![NuGet Downloads](https://img.shields.io/nuget/dt/HigginsSoft.IdentityServer8.AspNetIdentity)|
+|[TechAdvisor.IdentityServer8](https://www.nuget.org/packages/TechAdvisor.IdentityServer8)|![NuGet Version](https://img.shields.io/nuget/v/TechAdvisor.IdentityServer8)|
+|[TechAdvisor.IdentityServer8.Storage](https://www.nuget.org/packages/TechAdvisor.IdentityServer8.Storage)|![NuGet Version](https://img.shields.io/nuget/v/TechAdvisor.IdentityServer8.Storage)|
+|[TechAdvisor.IdentityServer8.Security](https://www.nuget.org/packages/TechAdvisor.IdentityServer8.Security)|![NuGet Version](https://img.shields.io/nuget/v/TechAdvisor.IdentityServer8.Security)|
+|[TechAdvisor.IdentityServer8.EntityFramework](https://www.nuget.org/packages/TechAdvisor.IdentityServer8.EntityFramework)|![NuGet Version](https://img.shields.io/nuget/v/TechAdvisor.IdentityServer8.EntityFramework)|
+|[TechAdvisor.IdentityServer8.EntityFramework.Storage](https://www.nuget.org/packages/TechAdvisor.IdentityServer8.EntityFramework.Storage)|![NuGet Version](https://img.shields.io/nuget/v/TechAdvisor.IdentityServer8.EntityFramework.Storage)|
+|[TechAdvisor.IdentityServer8.AspNetIdentity](https://www.nuget.org/packages/TechAdvisor.IdentityServer8.AspNetIdentity)|![NuGet Version](https://img.shields.io/nuget/v/TechAdvisor.IdentityServer8.AspNetIdentity)|
 | | |
 
 ### Identity Server 8 Administration UI
+The Administration UI packages are published by the upstream HigginsSoft project and target .NET 8. They are not part of this repository.
+
 |Package||
 | ------------- | ------------- |
 |[HigginsSoft.IdentityServer8.Shared](https://www.nuget.org/packages?q=HigginsSoft.IdentityServer8.Shared)|![NuGet Downloads](https://img.shields.io/nuget/dt/HigginsSoft.IdentityServer8.Shared)|
@@ -97,10 +108,12 @@ Active development happens on the main branch. This always contains the latest v
 
 ## How to build
 
-* [Install]([https://www.microsoft.com/net/download/core#/current](https://dotnet.microsoft.com/en-us/download#/current) the latest .NET 8 SDK
+* [Install](https://dotnet.microsoft.com/download/dotnet/10.0) the .NET 10 SDK (10.0.100 or later, see `global.json`)
 * Install Git
 * Clone this repo
-* Run `dotnet build src/identityserver8.slm` or `build.sh` in the root of the cloned repo.
+* Run `dotnet build src/IdentityServer8.sln` in the root of the cloned repo
+* Run the tests with `dotnet test src/IdentityServer8.sln`
+* EF Core tooling: run `dotnet tool restore` to get `dotnet ef` 10.x
 
 ## Documentation
 For project documentation, please visit [readthedocs](https://IdentityServer8.readthedocs.io).
